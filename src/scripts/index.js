@@ -1,8 +1,8 @@
 "use strict";
 
 import * as THREE from "three";
-import { GLTFLoader } from "./node_modules/three/examples/jsm/loaders/GLTFLoader.js";
-import { RGBELoader } from "./node_modules/three/examples/jsm/loaders/RGBELoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 let scene, camera, renderer;
 
