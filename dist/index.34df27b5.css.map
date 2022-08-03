@@ -1,1 +1,0 @@
-{"mappings":"ACAA;;;;;;ACAA","sources":["src/css/main.css","src/scss/base/_reset.scss","src/scss/base/_typography.scss"],"sourcesContent":["*{margin:0;padding:0;box-sizing:border-box}:root{font-size:16px}",null,null],"names":[],"version":3,"file":"index.34df27b5.css.map","sourceRoot":"/__parcel_source_root/"}
