@@ -1,52 +1,79 @@
 "use strict";
 
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/orbitcontrols.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { HDRILoader } from "../scripts/loaders/HDRILoader.js";
 
-let scene, camera, renderer;
 
-init();
-animate();
+// const HDRI = new URL("../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url);
+const Environment = new URL ("../objects/environment.gltf", import.meta.url);
+
+let _scene, _camera, _renderer;
 
 function init() {
     // Scene
-    scene = new THREE.Scene();
+    _scene = new THREE.Scene();
 
     // Renderer
-    renderer = new THREE.WebGLRenderer();
+    _renderer = new THREE.WebGLRenderer( { antialias: true } );
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    document.body.appendChild( renderer.domElement );
-
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.8;
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    _renderer.setSize( window.innerWidth, window.innerHeight );
+    _renderer.setPixelRatio( window.devicePixelRatio );
+    document.body.appendChild( _renderer.domElement );
 
     // Camera
-    camera = new THREE.PerspectiveCamera( 
+    _camera = new THREE.PerspectiveCamera( 
         75, 
         window.innerWidth / window.innerHeight, 
         0.1, 
         1000 
     );
+    
+    _camera.position.z = 5;
 
-    // Event Listener
+    // Controls
+    const controls = new OrbitControls( _camera, _renderer.domElement );
+
+    // GLTF Loader
+    const objectLoader = new GLTFLoader();
+    
+    // HDRI Loader
+    const loader = new HDRILoader({ 
+        scene: _scene, 
+        url: new URL("../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url), 
+        isBackground: false, 
+        isEnvironment: true 
+    });
+    
+    // Set appropriate settings for renderer
+    loader.set({ renderer: _renderer, exposure: 1.8 });
+
+    loader.load(() => {
+        objectLoader.load( getStringFromURL(Environment), function(gltf) {
+            gltf.scene.scale.set(1, 1, 1);
+            gltf.scene.position.set(0, 0, 0);
+            _scene.add(gltf.scene);
+        } );
+    });
+
+    // Event Listeners
     window.addEventListener( 'resize', onWindowResize );
 }
 
+function getStringFromURL(url) {
+    return ".".concat(url.pathname);
+}
+
 function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    _camera.aspect = window.innerWidth / window.innerHeight;
+    _camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
-
-    controls.handleResize();
+    _renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function render() {
-    renderer.render( scene, camera );
+    _renderer.render( _scene, _camera );
 
 }
 
@@ -55,3 +82,6 @@ function animate() {
 
     render();
 }
+
+init();
+animate();
