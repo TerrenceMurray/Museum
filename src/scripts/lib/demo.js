@@ -1,20 +1,20 @@
 "use strict";
 
 // Custom
-import { getStringFromURL } from "./lib/custom";
+import { getStringFromURL } from "./abstracts/custom";
 
 // Base
 import * as THREE from "three";
 
 // Loaders
 import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
-import { HDRILoader } from "./lib/loaders/HDRILoader";
+import { HDRILoader } from "./loaders/HDRILoader";
 
 // Controls
-import { ClickDragControls } from "./lib/controls/ClickDragControls";
+import { ClickDragControls } from "./controls/ClickDragControls";
 
 // ThreeJs Scene
-class MuseumDemo {
+export class MuseumDemo {
 
     constructor() {
         this._init();
@@ -22,7 +22,30 @@ class MuseumDemo {
     }
 
     _loadObjects() {
-        // // Light
+        //#region HDRI
+
+        // Create HDRI
+        // const hdri_loader = new HDRILoader( { 
+        //     scene: this.scene, 
+        //     url: new URL( "../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url ) 
+        // } );
+
+        // hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
+
+        // hdri_loader.load( () => {
+        //     new GLTFLoader().load( 
+        //         getStringFromURL( new URL( "../objects/environment.gltf", import.meta.url ) ), 
+        //         gltf => {
+        //             gltf.scene.scale.set(5, 5, 5);
+        //             gltf.scene.position.set(0, 0, 0);
+        //             this.scene.add( gltf.scene );
+        //         } 
+        //     );
+        // } );
+        
+        //#endregion
+
+        // Light
         const ambientLight = new THREE.AmbientLight( 0xfffff, 10 ); 
         this.scene.add( ambientLight );
 
@@ -109,8 +132,3 @@ class MuseumDemo {
         this.renderer.render( this.scene, this.camera );
     }
 }
-
-// Instantiate the ThreeJs when the document is loaded
-window.addEventListener( 'DOMContentLoaded' ,() => {
-    const demo = new MuseumDemo();
-} );

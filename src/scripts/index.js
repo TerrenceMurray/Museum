@@ -1,105 +1,12 @@
 "use strict";
 
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
-import { getStringFromURL } from "./lib/custom";
-import { HDRILoader } from "./lib/loaders/HDRILoader";
-import { ClickDragControls } from "./lib/controls/ClickDragControls";
-
-class MuseumDemo {
-    
-    constructor() {
-        this._init();
-        this._animate();
-    }
-
-    _loadObjects() {
-        // Create HDRI
-        const hdri_loader = new HDRILoader( { 
-            scene: this.scene, 
-            url: new URL( "../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url ) 
-        } );
-
-        hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
-
-        hdri_loader.load( () => {
-            new GLTFLoader().load( 
-                getStringFromURL( new URL( "../objects/environment.gltf", import.meta.url ) ), 
-                gltf => {
-                    gltf.scene.scale.set(5, 5, 5);
-                    gltf.scene.position.set(0, 0, 0);
-                    this.scene.add( gltf.scene );
-                } 
-            );
-        } );
-    }
-
-    _init() {
-        this._initScene();
-        this._initRenderer();
-        this._initCamera();
-        this._initControls();
-
-        this._loadObjects();
-
-        window.addEventListener( 'resize', () => {
-            this._handleResize();
-        } );
-    }
-
-    _initScene() {
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color( 0x202020 );
-    }
-
-    _initRenderer() {
-        this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-
-        this.renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-        this.renderer.pixelRatio = window.devicePixelRatio;
-        document.body.appendChild( this.renderer.domElement );
-    }
-
-    _initCamera() {
-        this.camera = new THREE.PerspectiveCamera(
-            75, 
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-
-        this.camera.position.set( 30, 30, 0 );
-    }
-
-    _initControls() {
-        this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
-        
-    }
-
-    _handleResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-        
-        this._render();
-    }
-
-    _animate() {
-        requestAnimationFrame(this._animate.bind( this ));
-        
-        this._render();
-    }
-
-    _render() {
-        this.renderer.render( this.scene, this.camera );
-    }
-}
+import { Overlay } from "./lib/abstracts/custom";
+import { MuseumDemo } from "./lib/demo";
 
 window.addEventListener( 'DOMContentLoaded' ,() => {
-    const demo = new MuseumDemo();
+    // Load overlays
+    
+    
+    // Instantiate the ThreeJs when the document is loaded
+    const demo = new MuseumDemo;
 } );
