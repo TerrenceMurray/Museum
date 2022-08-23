@@ -1,7 +1,7 @@
 // #region Overlay Class
 
 class Overlay {
-    constructor( container, options = { classes: { open, close }, events: { onOpen, onClose } } ) {
+    constructor( container, options = { styles: { open, close } } ) {
         this.container = document.querySelector(container);
         this.options = options;
 
@@ -10,6 +10,14 @@ class Overlay {
     }
 
     _init() {
+        
+    }
+
+    show() {
+
+    }
+
+    hide() {
 
     }
 }
