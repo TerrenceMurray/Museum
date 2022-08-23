@@ -1,57 +1,64 @@
 "use strict";
 
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
+// Custom
 import { getStringFromURL } from "./lib/custom";
+
+// Base
+import * as THREE from "three";
+
+// Loaders
+import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
 import { HDRILoader } from "./lib/loaders/HDRILoader";
+
+// Controls
 import { ClickDragControls } from "./lib/controls/ClickDragControls";
 
+// ThreeJs Scene
 class MuseumDemo {
-    
+
     constructor() {
         this._init();
         this._animate();
     }
 
     _loadObjects() {
-        // Create HDRI
-        const hdri_loader = new HDRILoader( { 
-            scene: this.scene, 
-            url: new URL( "../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url ) 
-        } );
+        // // Light
+        const ambientLight = new THREE.AmbientLight( 0xfffff, 10 ); 
+        this.scene.add( ambientLight );
 
-        hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
+        // Helper
+        const helper = new THREE.GridHelper( 1000, 100 );
+        this.scene.add(helper);
 
-        hdri_loader.load( () => {
-            new GLTFLoader().load( 
-                getStringFromURL( new URL( "../objects/environment.gltf", import.meta.url ) ), 
-                gltf => {
-                    gltf.scene.scale.set(5, 5, 5);
-                    gltf.scene.position.set(0, 0, 0);
-                    this.scene.add( gltf.scene );
-                } 
-            );
-        } );
+        // Cube
+        const geo = new THREE.BoxGeometry( 2, 2, 2 );
+        const mat = new THREE.MeshBasicMaterial( { color: 0xfefffe } );
+        const cubeMesh = new THREE.Mesh( geo, mat );
+
+        this.scene.add( cubeMesh );
     }
-
+    
+    // Initialise components
     _init() {
         this._initScene();
         this._initRenderer();
         this._initCamera();
         this._initControls();
-
         this._loadObjects();
 
+        // Handle the resizing on window resize
         window.addEventListener( 'resize', () => {
             this._handleResize();
         } );
     }
 
+    // Scene
     _initScene() {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color( 0x202020 );
     }
 
+    // Renderer
     _initRenderer() {
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
 
@@ -64,6 +71,7 @@ class MuseumDemo {
         document.body.appendChild( this.renderer.domElement );
     }
 
+    // Camera
     _initCamera() {
         this.camera = new THREE.PerspectiveCamera(
             75, 
@@ -72,14 +80,16 @@ class MuseumDemo {
             1000
         );
 
-        this.camera.position.set( 30, 30, 0 );
+        this.camera.position.z = 10;
+        this.camera.position.y = 2;
     }
 
+    // Controls
     _initControls() {
         this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
-        
     }
 
+    // Handle resizing
     _handleResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
@@ -91,7 +101,7 @@ class MuseumDemo {
 
     _animate() {
         requestAnimationFrame(this._animate.bind( this ));
-        
+
         this._render();
     }
 
@@ -100,6 +110,7 @@ class MuseumDemo {
     }
 }
 
+// Instantiate the ThreeJs when the document is loaded
 window.addEventListener( 'DOMContentLoaded' ,() => {
     const demo = new MuseumDemo();
 } );

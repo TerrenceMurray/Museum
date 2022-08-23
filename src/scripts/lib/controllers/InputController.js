@@ -2,6 +2,11 @@ export class InputController {
 
     constructor( target ) {
         this.target = target || document;
+
+        this.pointer = {
+            x: 0, 
+            y: 0
+        }
         this.isActive = { 
             leftClick: false,
             middleClick: false,
@@ -18,12 +23,12 @@ export class InputController {
         this.target.addEventListener( 'mouseup', event => this.onMouseUp( event ), false );
     }
 
-    onMouseMove( event) {
-        
+    onMouseMove( event ) {
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = (event.clientY / window.innerWidth) * 2 + 1;
     }
 
     onMouseDown( event ) {
-        
         switch ( event.button ) {
             case 0:
                 this.isActive.leftClick = true;
