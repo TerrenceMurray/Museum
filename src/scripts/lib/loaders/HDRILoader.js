@@ -23,22 +23,22 @@ export class HDRILoader {
         this.isEnvironment = parameters.isEnvironment ?? true;
     }
     
-    set({ renderer, exposure = 1 }) {
-        if (renderer == null) console.error(`Undefined parameter: "renderer" was not passed`);
+    set( { renderer, exposure = 1 } ) {
+        if ( renderer == null ) console.error(`Undefined parameter: "renderer" was not passed`);
         renderer.toneMapping = ACESFilmicToneMapping;
         renderer.toneMappingExposure = exposure;
         renderer.outputEncoding = sRGBEncoding;
     }
 
-    load(loadObjectsCallback = null) {
+    load( loadObjectsCallback = null ) {
         this.loader.load( this.url, texture => {
             
             texture.mapping = EquirectangularReflectionMapping;
             
-            if (this.isEnvironment) this.scene.environment = texture;
-            if (this.isBackground) this.scene.background = texture;
+            if ( this.isEnvironment ) this.scene.environment = texture;
+            if ( this.isBackground ) this.scene.background = texture;
             
-            if (loadObjectsCallback == null) return;
+            if ( loadObjectsCallback == null ) return;
 
             loadObjectsCallback();
         } );

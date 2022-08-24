@@ -48,6 +48,14 @@ function getStringFromURL (url) {
     return ".".concat(url.pathname); 
 }
 
+function InvokeEvent( event = "", elem, data = {} ) {
+    const evnt = new CustomEvent( event, {
+        detail: data
+    } );
+
+    elem.dispatchEvent( evnt );
+}
+
 // #endregion
 
-export { getStringFromURL, Overlay }
+export { getStringFromURL, Overlay, InvokeEvent }

@@ -1,7 +1,7 @@
 "use strict";
 
 // Custom
-import { getStringFromURL, Overlay } from "./abstracts/custom";
+import { getStringFromURL, InvokeEvent } from "./abstracts/custom";
 
 // Base
 import * as THREE from "three";
@@ -16,7 +16,9 @@ import { ClickDragControls } from "./controls/ClickDragControls";
 // ThreeJs Scene
 export class MuseumDemo {
 
-    constructor() {
+    constructor( container ) {
+        this.container = container || document.body;
+
         this._init();
         this._animate();
     }
@@ -78,7 +80,7 @@ export class MuseumDemo {
         );
 
         this.renderer.pixelRatio = window.devicePixelRatio;
-        document.body.appendChild( this.renderer.domElement );
+        this.container.appendChild( this.renderer.domElement );
     }
 
     // Camera
@@ -99,28 +101,24 @@ export class MuseumDemo {
         this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
     }
 
+    // Manager
     _initManager() {
-
         this.loadingManager = new THREE.LoadingManager();
-        
-        const preloadOverlay = new Overlay( 
-            "section.preloader-overlay",
-            {
-                open: null,
-                close: "hide"
-            }, false
-        );
-        const progress = document.getElementById( "progress" );
-        
-        this.loadingManager.onLoad = function ( ) {
-            preloadOverlay.hide();
-        }
+        const container = this.container;
 
         this.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-            progress.textContent = itemsLoaded + " of " + itemsTotal + " resources";
-            // console.log( Math.ceil(itemsLoaded / itemsTotal), 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+            InvokeEvent( "custom:fileloaded", 
+                container, 
+                { 
+                    totalLoaded: itemsLoaded, 
+                    totalItems: itemsTotal 
+                } 
+            );
         }
 
+        this.loadingManager.onLoad = function ( ) {
+            InvokeEvent( "custom:allfilesloaded", container );
+        }
     }
 
     // Handle resizing

@@ -1,4 +1,3 @@
-import { Quaternion, Vector3 } from "three";
 /** Allows the user to click and drag the camera
  *  @param [camera] Three.js camera
  *  @param [domElement] Three.js WEBGLRenderer DOM element

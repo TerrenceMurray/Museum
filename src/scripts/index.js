@@ -42,13 +42,30 @@ window.addEventListener( 'DOMContentLoaded' ,() => {
             } );
         } );
 
+        const preloadOverlay = new Overlay( 
+            "section.preloader-overlay",
+            {
+                open: null,
+                close: "hide"
+            }, false
+        );
+
         // #endregion
+
+        const progress = document.getElementById( "progress" );
         
         // Instantiate the ThreeJs when the document is loaded
         const demo = new MuseumDemo;
 
+        demo.container.addEventListener( 'custom:fileloaded', event => {
+            progress.textContent = event.detail.totalLoaded + " of " + event.detail.totalItems + " resources";
+        } );
+        
+        demo.container.addEventListener( 'custom:allfilesloaded', event => {
+            preloadOverlay.hide();
+        } );
+
     } catch (e) {
         console.error( e );
     }
-    
 } );
