@@ -1,6 +1,7 @@
 import { 
     ACESFilmicToneMapping, 
     EquirectangularReflectionMapping, 
+    LoadingManager, 
     sRGBEncoding 
 } from "three";
 
@@ -14,10 +15,10 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
  */
 
 export class HDRILoader {
-    constructor ( parameters = { scene: Scene,  url: URL, isBackground: false, isEnvironment: true } ) {
+    constructor ( parameters = { scene: Scene,  url: URL, isBackground: false, isEnvironment: true, manager: LoadingManager } ) {
         this.url = parameters.url;
         this.scene = parameters.scene;
-        this.loader = new RGBELoader();
+        this.loader = new RGBELoader( parameters.manager );
         this.isBackground = parameters.isBackground ?? false;
         this.isEnvironment = parameters.isEnvironment ?? true;
     }

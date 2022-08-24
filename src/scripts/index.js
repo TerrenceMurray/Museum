@@ -27,6 +27,21 @@ window.addEventListener( 'DOMContentLoaded' ,() => {
             aboutOverlay.hide();
         } );
 
+        const instructionOverlay = new Overlay( 
+            "section.instruction-overlay",
+            {
+                open: null,
+                close: "hide"
+            }, false
+        );
+        
+        const closeInstruction = document.getElementById( "contd" );
+        closeInstruction.addEventListener( 'click', event => {
+            instructionOverlay.hide( container => {
+                container.style.display = "none";
+            } );
+        } );
+
         // #endregion
         
         // Instantiate the ThreeJs when the document is loaded

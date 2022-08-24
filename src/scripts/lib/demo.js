@@ -1,7 +1,7 @@
 "use strict";
 
 // Custom
-import { getStringFromURL } from "./abstracts/custom";
+import { getStringFromURL, Overlay } from "./abstracts/custom";
 
 // Base
 import * as THREE from "three";
@@ -22,43 +22,29 @@ export class MuseumDemo {
     }
 
     _loadObjects() {
-        //#region HDRI
+        // #region HDRI
 
         // Create HDRI
-        // const hdri_loader = new HDRILoader( { 
-        //     scene: this.scene, 
-        //     url: new URL( "../textures/MR_INT-003_Kitchen_Pierre.hdr", import.meta.url ) 
-        // } );
+        const hdri_loader = new HDRILoader( { 
+            scene: this.scene, 
+            url: new URL( "../../textures/sunset_in_the_chalk_quarry_1k.hdr", import.meta.url ),
+            manager: this.loadingManager
+        } );
 
-        // hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
+        hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
 
-        // hdri_loader.load( () => {
-        //     new GLTFLoader().load( 
-        //         getStringFromURL( new URL( "../objects/environment.gltf", import.meta.url ) ), 
-        //         gltf => {
-        //             gltf.scene.scale.set(5, 5, 5);
-        //             gltf.scene.position.set(0, 0, 0);
-        //             this.scene.add( gltf.scene );
-        //         } 
-        //     );
-        // } );
+        hdri_loader.load( () => {
+            new GLTFLoader( this.loadingManager ).load( 
+                getStringFromURL( new URL( "../../objects/environment.gltf", import.meta.url ) ), 
+                gltf => {
+                    gltf.scene.scale.set(5, 5, 5);
+                    gltf.scene.position.set(0, 0, 0);
+                    this.scene.add( gltf.scene );
+                } 
+            );
+        } );
         
-        //#endregion
-
-        // Light
-        const ambientLight = new THREE.AmbientLight( 0xfffff, 10 ); 
-        this.scene.add( ambientLight );
-
-        // Helper
-        const helper = new THREE.GridHelper( 1000, 100 );
-        this.scene.add(helper);
-
-        // Cube
-        const geo = new THREE.BoxGeometry( 2, 2, 2 );
-        const mat = new THREE.MeshBasicMaterial( { color: 0xfefffe } );
-        const cubeMesh = new THREE.Mesh( geo, mat );
-
-        this.scene.add( cubeMesh );
+        // #endregion
     }
     
     // Initialise components
@@ -67,6 +53,7 @@ export class MuseumDemo {
         this._initRenderer();
         this._initCamera();
         this._initControls();
+        this._initManager();
         this._loadObjects();
 
         // Handle the resizing on window resize
@@ -104,12 +91,36 @@ export class MuseumDemo {
         );
 
         this.camera.position.z = 10;
-        this.camera.position.y = 2;
+        this.camera.position.y = 8;
     }
 
     // Controls
     _initControls() {
         this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
+    }
+
+    _initManager() {
+
+        this.loadingManager = new THREE.LoadingManager();
+        
+        const preloadOverlay = new Overlay( 
+            "section.preloader-overlay",
+            {
+                open: null,
+                close: "hide"
+            }, false
+        );
+        const progress = document.getElementById( "progress" );
+        
+        this.loadingManager.onLoad = function ( ) {
+            preloadOverlay.hide();
+        }
+
+        this.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+            progress.textContent = itemsLoaded + " of " + itemsTotal + " resources";
+            // console.log( Math.ceil(itemsLoaded / itemsTotal), 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        }
+
     }
 
     // Handle resizing

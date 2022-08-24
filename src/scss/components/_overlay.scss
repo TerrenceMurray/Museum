@@ -1,26 +1,8 @@
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1.0;
-    }
-}
-
 body {
     position: relative;
     overflow-x: hidden;
+    width: 100vw;
+    height: 100vh;
 }
 
 .scene-overlay {
@@ -36,19 +18,10 @@ body {
 
         &.hide {
             opacity: 1;
-            animation-name: fadeIn;
-            animation-duration: 0.5s;
-            animation-timing-function: ease-in-out;
-            animation-fill-mode: forwards;
-            animation-direction: reverse;
         }
         
         &.show {
             opacity: 0;
-            animation-name: fadeIn;
-            animation-duration: 0.5s;
-            animation-timing-function: ease-in-out;
-            animation-fill-mode: forwards;
         }
     }
 }
@@ -109,4 +82,89 @@ body {
         
     }
 
+}
+
+@keyframes oscillate {
+    0% {
+        transform: translateX( -50px );
+    }
+    100% {
+        transform: translateX( 50px );
+    }
+}
+
+.instruction-overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    background-color: rgba(53, 53, 53, 0.534);
+    opacity: 1;
+    
+    &.hide {
+        opacity: 0;
+    }
+
+    .wrapper {
+        margin: auto;
+        text-align: center;
+
+        p {
+            font-weight: 600;
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        div {
+            animation-name: oscillate;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+            
+            i {
+                color: white;
+                font-size: 3.5rem;
+            }
+        }
+
+    }
+}
+
+@keyframes hide {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.preloader-overlay {
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background-color: #28282B;
+
+    &.hide {
+        animation-name: hide;
+        animation-duration: 1s;
+        animation-timing-function: ease-in;
+        animation-delay: 3s;
+    }
+
+    p {
+        color: white;
+        font-size: 1.2rem;
+        text-align: center;
+        margin-top: 2em;
+    }
+
+    * {
+        margin: auto;
+    }
 }
