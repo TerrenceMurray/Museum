@@ -24,6 +24,17 @@ export class MuseumDemo {
     }
 
     _loadObjects() {
+        //Create a DirectionalLight and turn on shadows for the light
+        const light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+        light.position.set( 0, 10, 0 ); //default; light shining from top
+        light.castShadow = true; // default false
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.camera.near = 0.01;
+        light.shadow.camera.far = 1000;
+        light.shadow.radius = 10;
+        this.scene.add( light );
+        
         // #region HDRI
 
         // Create HDRI
@@ -33,16 +44,48 @@ export class MuseumDemo {
             manager: this.loadingManager
         } );
 
-        hdri_loader.set( { renderer: this.renderer, exposure: 1.8 } );
+        hdri_loader.set( { renderer: this.renderer, exposure: 1.5 } );
 
         hdri_loader.load( () => {
+
             new GLTFLoader( this.loadingManager ).load( 
                 getStringFromURL( new URL( "../../objects/environment.gltf", import.meta.url ) ), 
                 gltf => {
+                    gltf.scene.traverse( node => {
+                        if ( node.isMesh ) { node.receiveShadow = true; node.geometry.computeVertexNormals(); }
+                    } );
                     gltf.scene.scale.set(5, 5, 5);
                     gltf.scene.position.set(0, 0, 0);
                     this.scene.add( gltf.scene );
                 } 
+            );
+
+            new GLTFLoader( this.loadingManager ).load( 
+                getStringFromURL( new URL( "../../objects/monkey.gltf", import.meta.url ) ),
+                gltf => {
+
+                    gltf.scene.traverse( node => {
+                        if ( node.isMesh ) { node.castShadow = true; }
+                    } );
+                    
+                    gltf.scene.scale.set(2, 2, 2);
+                    gltf.scene.position.set(5, 2, 0);
+                    this.scene.add( gltf.scene );
+                }
+            );
+            
+            new GLTFLoader( this.loadingManager ).load( 
+                getStringFromURL( new URL( "../../objects/monkey-mike.gltf", import.meta.url ) ),
+                gltf => {
+
+                    gltf.scene.traverse( node => {
+                        if ( node.isMesh ) { node.castShadow = true; }
+                    } );
+                    
+                    gltf.scene.scale.set(2, 2, 2);
+                    gltf.scene.position.set(-5, 2, 0);
+                    this.scene.add( gltf.scene );
+                }
             );
         } );
         
@@ -57,6 +100,7 @@ export class MuseumDemo {
         this._initControls();
         this._initManager();
         this._loadObjects();
+        this._postProcessing();
 
         // Handle the resizing on window resize
         window.addEventListener( 'resize', () => {
@@ -80,6 +124,9 @@ export class MuseumDemo {
         );
 
         this.renderer.pixelRatio = window.devicePixelRatio;
+        this.renderer.shadowMap.enabled = true;
+        // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
         this.container.appendChild( this.renderer.domElement );
     }
 
@@ -129,6 +176,11 @@ export class MuseumDemo {
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         
         this._render();
+    }
+
+    // Post Processing
+    _postProcessing() {
+
     }
 
     _animate() {
