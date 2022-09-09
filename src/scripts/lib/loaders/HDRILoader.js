@@ -8,10 +8,11 @@ import {
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 /** Loads an HDR (*.hdr) image into your scene
- *  @param [scene] Three.js scene
+ *  @param [scene] Three.js Scene
  *  @param [url] the directory of your *.hdr file
  *  @param [isBackground=false] use the hdr as your scene background
  *  @param [isEnvronment=true] use the hdr as your reflections in your scene
+ *  @param [manager] THREE.js LoadingManager
  */
 
 export class HDRILoader {

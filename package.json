@@ -12,6 +12,7 @@
   "author": "Terrence Murray",
   "license": "MIT",
   "dependencies": {
+    "gsap": "^3.11.1",
     "three": "^0.143.0"
   },
   "devDependencies": {

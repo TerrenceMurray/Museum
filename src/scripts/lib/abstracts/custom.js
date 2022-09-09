@@ -1,11 +1,11 @@
 // #region Overlay
 
 class Overlay {
-    constructor( containerSelector, options = { open: "", close: "" }, initial = true ) {
+    constructor( containerSelector, options = { open: "", close: "" }, hide = true ) {
         this.container = document.querySelector( containerSelector );
         this.options = options;
 
-        this.isHidden = initial;
+        this.isHidden = hide;
         this._init();
     }
 

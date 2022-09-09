@@ -3,8 +3,6 @@
 import { Overlay } from "./lib/abstracts/custom";
 import { MuseumDemo } from "./lib/demo";
 
-
-
 window.addEventListener( 'DOMContentLoaded' ,() => {
     try {
         // #region Overlays
@@ -53,9 +51,10 @@ window.addEventListener( 'DOMContentLoaded' ,() => {
         // #endregion
 
         const progress = document.getElementById( "progress" );
-        
         // Instantiate the ThreeJs when the document is loaded
         const demo = new MuseumDemo;
+
+        // #region Events
 
         demo.container.addEventListener( 'custom:fileloaded', event => {
             progress.textContent = event.detail.totalLoaded + " of " + event.detail.totalItems + " resources";
@@ -65,6 +64,19 @@ window.addEventListener( 'DOMContentLoaded' ,() => {
             preloadOverlay.hide();
         } );
 
+        demo.container.addEventListener( 'custom:LeftClickDown', event => {
+            // demo.onLeftClick();
+        } );
+        
+        demo.container.addEventListener( 'custom:LeftClickUp', event => {
+            demo.onLeftClick();
+        } );
+        
+        demo.container.addEventListener( 'custom:RightClickDown', event => {
+            demo.onRightClick();
+        } );
+
+        // #endregion
     } catch (e) {
         console.error( e );
     }

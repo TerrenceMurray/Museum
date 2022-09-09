@@ -1,20 +1,20 @@
 "use strict";
 
-// Custom
-import { getStringFromURL, InvokeEvent } from "./abstracts/custom";
-
-// Base
 import * as THREE from "three";
-
-// Loaders
 import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
 import { HDRILoader } from "./loaders/HDRILoader";
-
-// Controls
 import { ClickDragControls } from "./controls/ClickDragControls";
-
+import { InputController } from "./controllers/InputController";
+import { 
+    getStringFromURL, 
+    InvokeEvent 
+} from "./abstracts/custom";
+import { gsap } from "gsap";
 // ThreeJs Scene
 export class MuseumDemo {
+
+    #objects = new Array();
+    #floor = new Array();
 
     constructor( container ) {
         this.container = container || document.body;
@@ -24,7 +24,7 @@ export class MuseumDemo {
     }
 
     _loadObjects() {
-        //Create a DirectionalLight and turn on shadows for the light
+        // #region Directional Light
         const light = new THREE.DirectionalLight( 0xffffff, 0.8 );
         light.position.set( 0, 10, 0 ); //default; light shining from top
         light.castShadow = true; // default false
@@ -34,17 +34,17 @@ export class MuseumDemo {
         light.shadow.camera.far = 1000;
         light.shadow.radius = 10;
         this.scene.add( light );
+        // #endregion
         
-        // #region HDRI
-
+        // #region HDRI & Objects
         // Create HDRI
         const hdri_loader = new HDRILoader( { 
             scene: this.scene, 
-            url: new URL( "../../textures/sunset_in_the_chalk_quarry_1k.hdr", import.meta.url ),
+            url: new URL( "../../textures/brown_photostudio_02_1k.hdr", import.meta.url ),
             manager: this.loadingManager
         } );
 
-        hdri_loader.set( { renderer: this.renderer, exposure: 1.5 } );
+        hdri_loader.set( { renderer: this.renderer, exposure: 0.5 } );
 
         hdri_loader.load( () => {
 
@@ -52,43 +52,48 @@ export class MuseumDemo {
                 getStringFromURL( new URL( "../../objects/environment.gltf", import.meta.url ) ), 
                 gltf => {
                     gltf.scene.traverse( node => {
-                        if ( node.isMesh ) { node.receiveShadow = true; node.geometry.computeVertexNormals(); }
+                        if ( node.isMesh ) { 
+                            node.receiveShadow = true; 
+                            node.geometry.computeVertexNormals(); 
+                            node.scale.set(5, 5, 5);
+                            node.position.set(0, 0, 0);
+                            this.scene.add( node );
+                            this.#floor.push(node);
+                        }
                     } );
-                    gltf.scene.scale.set(5, 5, 5);
-                    gltf.scene.position.set(0, 0, 0);
-                    this.scene.add( gltf.scene );
                 } 
             );
 
             new GLTFLoader( this.loadingManager ).load( 
                 getStringFromURL( new URL( "../../objects/monkey.gltf", import.meta.url ) ),
                 gltf => {
-
                     gltf.scene.traverse( node => {
-                        if ( node.isMesh ) { node.castShadow = true; }
+                        if ( node.isMesh ) { 
+                            node.castShadow = true;
+                            node.position.set(5, 3.5, 0);
+                            node.scale.set(2, 2, 2);
+                            this.scene.add( node );
+                            this.#objects.push( node );
+                        }
                     } );
-                    
-                    gltf.scene.scale.set(2, 2, 2);
-                    gltf.scene.position.set(5, 2, 0);
-                    this.scene.add( gltf.scene );
                 }
             );
             
             new GLTFLoader( this.loadingManager ).load( 
                 getStringFromURL( new URL( "../../objects/monkey-mike.gltf", import.meta.url ) ),
                 gltf => {
-
                     gltf.scene.traverse( node => {
-                        if ( node.isMesh ) { node.castShadow = true; }
+                        if ( node.isMesh ) { 
+                            node.castShadow = true;
+                            node.position.set(-5, 3.5, 0);
+                            node.scale.set(2, 2, 2);
+                            this.scene.add( node );
+                            this.#objects.push( node );
+                        }
                     } );
-                    
-                    gltf.scene.scale.set(2, 2, 2);
-                    gltf.scene.position.set(-5, 2, 0);
-                    this.scene.add( gltf.scene );
                 }
             );
         } );
-        
         // #endregion
     }
     
@@ -146,6 +151,11 @@ export class MuseumDemo {
     // Controls
     _initControls() {
         this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
+        
+        // Input Controller
+        this.raycaster = new THREE.Raycaster();
+        this.inputController = new InputController( this.container );
+
     }
 
     // Manager
@@ -190,6 +200,28 @@ export class MuseumDemo {
     }
 
     _render() {
+        this.raycaster.setFromCamera( this.inputController.pointer, this.camera );
+        
         this.renderer.render( this.scene, this.camera );
+    }
+
+    // Events
+    onLeftClick() {
+        var intersects = this.raycaster.intersectObjects( this.#objects );
+        console.log( intersects );
+    }
+
+    onRightClick() {
+        
+        var intersects = this.raycaster.intersectObjects( this.#floor );
+        var point = intersects.length > 0 ? intersects[0].point : null;
+        if ( point === null ) return;
+
+        gsap.to( this.camera.position, { 
+            duration: 1,  
+            ease: 'expo.out',
+            x: point.x,  
+            z: point.z,  
+        } );
     }
 }
