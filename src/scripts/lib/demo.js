@@ -7,10 +7,13 @@ import { ClickDragControls } from "./controls/ClickDragControls";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { InputController } from "./controllers/InputController";
 import { gsap } from "gsap";
-import { 
-    getStringFromURL, 
-    InvokeEvent 
-} from "./abstracts/custom";
+import { getStringFromURL, InvokeEvent } from "./abstracts/custom";
+
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+// import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+// import { OutlineShader } from "./shaders/OutlineShader";
 
 // ThreeJs Scene
 export class MuseumDemo {
@@ -108,7 +111,6 @@ export class MuseumDemo {
         this._initControls();
         this._initManager();
         this._loadObjects();
-        this._postProcessing();
 
         // Handle the resizing on window resize
         window.addEventListener( 'resize', () => {
@@ -207,11 +209,6 @@ export class MuseumDemo {
         this._render();
     }
 
-    // Post Processing
-    _postProcessing() {
-
-    }
-
     _animate() {
         requestAnimationFrame(this._animate.bind( this ));
 
@@ -227,19 +224,19 @@ export class MuseumDemo {
     }
 
     // Events
-    onLeftClick() {
+    onSelectObject() {
         var intersects = this.raycaster.intersectObjects( this.#objects );
         var selected = intersects.length > 0 ? intersects[0] : null;
         if ( selected === null ) return;
 
         if ( this.controls.active == true ) this.controls.active = false;
-        
+               
         var fromDirection = new THREE.Vector3();
         this.camera.getWorldDirection( fromDirection )
         var rc = new THREE.Raycaster();
         rc.set( this.camera.position, fromDirection )
         var result = rc.intersectObjects( this.scene.children );
-        if ( result ) {
+        if ( result.length > 0 ) {
             this.orbitcontrols.target.copy( result[0].point );
         }
 
@@ -261,17 +258,19 @@ export class MuseumDemo {
         this.#selected = selected.object.name;
     }
 
-    onRightClick() {        
+    onMovePosition() {        
         var intersects = this.raycaster.intersectObjects( this.#floor );
         var point = intersects.length > 0 ? intersects[0].point : null;
         if ( point === null ) return;
         
         if ( this.orbitcontrols.enabled == true ) {
             this.orbitcontrols.enabled = false;
-            InvokeEvent( "custom:deselectobject", this.container, {
-                name: this.#selected
-            } );
-            this.#selected = null;
+            if ( this.#selected != null ) {
+                InvokeEvent( "custom:deselectobject", this.container, {
+                    name: this.#selected
+                } );
+                this.#selected = null;
+            }
             this.controls.active = true;
         }
         

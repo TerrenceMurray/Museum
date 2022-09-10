@@ -1,17 +1,17 @@
 // #region Overlay
 
 class Overlay {
-    constructor( containerSelector, options = { open: "", close: "" }, hide = true ) {
+    constructor( containerSelector, options = { open: "", close: "", display: "block" }, show = true ) {
         this.container = document.querySelector( containerSelector );
         this.options = options;
 
-        this.isHidden = hide;
+        this.isHidden = show;
         this._init();
     }
 
     _init() {
-        if ( this.isHidden === false ) this.show();
-        else if ( this.isHidden === true ) this.hide();
+        if ( this.isHidden == true ) this.show();
+        else if ( this.isHidden == false ) this.hide();
     }
 
     show( callback ) {
@@ -19,7 +19,7 @@ class Overlay {
 
         this.container.classList.remove( this.options.close );
         this.container.classList.add( this.options.open );
-        this.container.style.display = "block";
+        this.container.style.display = this.options.display;
         
         this.isHidden = false;    
         if ( callback !== undefined && callback !== null ) callback( this.container );        

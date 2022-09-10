@@ -25,6 +25,7 @@ export class InputController {
     #onMouseMove( event ) {
         this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        InvokeEvent( "custom:MouseMove", this.target );
     }
 
     #onMouseDown( event ) {
