@@ -4,17 +4,20 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/gltfloader";
 import { HDRILoader } from "./loaders/HDRILoader";
 import { ClickDragControls } from "./controls/ClickDragControls";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { InputController } from "./controllers/InputController";
+import { gsap } from "gsap";
 import { 
     getStringFromURL, 
     InvokeEvent 
 } from "./abstracts/custom";
-import { gsap } from "gsap";
+
 // ThreeJs Scene
 export class MuseumDemo {
 
     #objects = new Array();
     #floor = new Array();
+    #selected = null;
 
     constructor( container ) {
         this.container = container || document.body;
@@ -49,14 +52,14 @@ export class MuseumDemo {
         hdri_loader.load( () => {
 
             new GLTFLoader( this.loadingManager ).load( 
-                getStringFromURL( new URL( "../../objects/environment.gltf", import.meta.url ) ), 
+                getStringFromURL( new URL( "../../objects/floor.gltf", import.meta.url ) ), 
                 gltf => {
                     gltf.scene.traverse( node => {
                         if ( node.isMesh ) { 
                             node.receiveShadow = true; 
                             node.geometry.computeVertexNormals(); 
-                            node.scale.set(5, 5, 5);
-                            node.position.set(0, 0, 0);
+                            node.scale.set(100, 100, 100);
+                            node.position.set(0, 2.5, 0);
                             this.scene.add( node );
                             this.#floor.push(node);
                         }
@@ -152,6 +155,22 @@ export class MuseumDemo {
     _initControls() {
         this.controls = new ClickDragControls( this.camera, this.renderer.domElement );
         
+        this.orbitcontrols = new OrbitControls( this.camera, this.renderer.domElement );
+        this.orbitcontrols.enabled = false;
+        
+        this.orbitcontrols.minDistance = 5;
+        this.orbitcontrols.maxDistance = 15;
+
+        this.orbitcontrols.minPolarAngle = 0;
+        this.orbitcontrols.maxPolarAngle = Math.PI / 2;
+
+
+        this.orbitcontrols.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: null,
+            RIGHT: null,
+        }
+
         // Input Controller
         this.raycaster = new THREE.Raycaster();
         this.inputController = new InputController( this.container );
@@ -196,6 +215,8 @@ export class MuseumDemo {
     _animate() {
         requestAnimationFrame(this._animate.bind( this ));
 
+        if ( this.orbitcontrols.enabled == true ) this.orbitcontrols.update();
+        
         this._render();
     }
 
@@ -208,19 +229,57 @@ export class MuseumDemo {
     // Events
     onLeftClick() {
         var intersects = this.raycaster.intersectObjects( this.#objects );
-        console.log( intersects );
+        var selected = intersects.length > 0 ? intersects[0] : null;
+        if ( selected === null ) return;
+
+        if ( this.controls.active == true ) this.controls.active = false;
+        
+        var fromDirection = new THREE.Vector3();
+        this.camera.getWorldDirection( fromDirection )
+        var rc = new THREE.Raycaster();
+        rc.set( this.camera.position, fromDirection )
+        var result = rc.intersectObjects( this.scene.children );
+        if ( result ) {
+            this.orbitcontrols.target.copy( result[0].point );
+        }
+
+        if ( this.orbitcontrols.enabled == false ) this.orbitcontrols.enabled = true;
+        
+        gsap.to( this.orbitcontrols.target, {
+            duration: 0.5,
+            x: selected.object.position.x,
+            y: selected.object.position.y,
+            z: selected.object.position.z,
+            onComplete: () => {
+                this.orbitcontrols.update();
+            }
+        } );
+
+        InvokeEvent( "custom:selectobject", this.container, {
+            name: selected.object.name
+        } );
+        this.#selected = selected.object.name;
     }
 
-    onRightClick() {
-        
+    onRightClick() {        
         var intersects = this.raycaster.intersectObjects( this.#floor );
         var point = intersects.length > 0 ? intersects[0].point : null;
         if ( point === null ) return;
-
+        
+        if ( this.orbitcontrols.enabled == true ) {
+            this.orbitcontrols.enabled = false;
+            InvokeEvent( "custom:deselectobject", this.container, {
+                name: this.#selected
+            } );
+            this.#selected = null;
+            this.controls.active = true;
+        }
+        
         gsap.to( this.camera.position, { 
             duration: 1,  
             ease: 'expo.out',
             x: point.x,  
+            y: 8,
             z: point.z,  
         } );
     }
